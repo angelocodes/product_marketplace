@@ -11,20 +11,26 @@ jobs:
     steps:
       - checkout
 
-      - python/install-packages:
-          pkg-manager: pip
-          requirements: requirements.txt
+      # Upgrade pip and install project dependencies
+      - run:
+          name: Install project dependencies
+          command: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
 
+      # Install test-only dependencies
       - run:
           name: Install test dependencies
           command: |
             pip install pytest pytest-django
 
+      # Run Django migrations
       - run:
           name: Run database migrations
           command: |
             python manage.py migrate --settings=product_marketplace.settings
 
+      # Run tests
       - run:
           name: Run tests
           command: |
@@ -38,4 +44,3 @@ workflows:
           filters:
             branches:
               only: /.*/
-
