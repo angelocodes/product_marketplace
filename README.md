@@ -70,6 +70,7 @@ python manage.py runserver
 ---
 
 ## User Roles & Test Accounts
+You can create the below users as test accounts.
 
 | Username | Password | Role | Permissions |
 |----------|----------|------|-------------|
