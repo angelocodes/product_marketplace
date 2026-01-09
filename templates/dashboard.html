@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Product Marketplace</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background: #ff6b35;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        .welcome-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .card p {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        .card a {
+            display: inline-block;
+            background: #ff6b35;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .card a:hover {
+            background: #e55a2b;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .info-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .info-item strong {
+            display: block;
+            font-size: 1.2rem;
+            color: #ff6b35;
+        }
+        .api-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+        .api-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .api-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .api-link {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+        }
+        .api-link a {
+            color: #ff6b35;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .api-link a:hover {
+            text-decoration: underline;
+        }
+        .jwt-info {
+            background: #fff3e6;
+            border: 1px solid #ffe0b2;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+        .jwt-info h4 {
+            margin-top: 0;
+            color: #e65100;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Product Marketplace</h1>
+        <div class="user-info">
+            <span>Welcome, {{ user.get_full_name|default:user.username }}!</span>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h2>Dashboard</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>{{ user.username }}</strong>
+                    <span>Username</span>
+                </div>
+                {% if business %}
+                <div class="info-item">
+                    <strong>{{ business.name }}</strong>
+                    <span>Business</span>
+                </div>
+                {% endif %}
+                <div class="info-item">
+                    <strong>{{ role|title }}</strong>
+                    <span>Role</span>
+                </div>
+                <div class="info-item">
+                    <strong>{{ user.date_joined|date:"M d, Y" }}</strong>
+                    <span>Member Since</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards">
+            <div class="card">
+                <h3>Products</h3>
+                <p>Manage your products, upload images, and track approvals.</p>
+                <a href="/api/products/">View Products API</a>
+            </div>
+
+            <div class="card">
+                <h3>Business</h3>
+                <p>View and manage business information.</p>
+                <a href="/api/businesses/">Business API</a>
+            </div>
+
+            <div class="card">
+                <h3>Users</h3>
+                <p>Manage users in your business (admin only).</p>
+                <a href="/api/users/">Users API</a>
+            </div>
+
+            <div class="card">
+                <h3>Admin Panel</h3>
+                <p>Full administrative access to the system.</p>
+                <a href="/admin/">Go to Admin</a>
+            </div>
+        </div>
+
+        <div class="api-section">
+            <h2>API Access</h2>
+            <p>Use these endpoints to interact with the system programmatically:</p>
+
+            <div class="api-links">
+                <div class="api-link">
+                    <a href="/api/token/">Get JWT Token</a>
+                    <br><small>POST: username/password → access token</small>
+                </div>
+                <div class="api-link">
+                    <a href="/api/products/">Products API</a>
+                    <br><small>CRUD operations with file uploads</small>
+                </div>
+                <div class="api-link">
+                    <a href="/api/businesses/">Business API</a>
+                    <br><small>Business management</small>
+                </div>
+                <div class="api-link">
+                    <a href="/api/users/">Users API</a>
+                    <br><small>User management (admin)</small>
+                </div>
+                <div class="api-link">
+                    <a href="/api/">API Documentation</a>
+                    <br><small>Browsable API interface</small>
+                </div>
+                <div class="api-link">
+                    <a href="/api/public/products/">Public Products</a>
+                    <br><small>Approved products (no auth)</small>
+                </div>
+            </div>
+
+            <div class="jwt-info">
+                <h4>JWT Authentication</h4>
+                <p><strong>Get Token:</strong> POST to <code>/api/token/</code> with username/password</p>
+                <p><strong>Use Token:</strong> Add <code>Authorization: Bearer <token></code> header</p>
+                <p><strong>Token Lifetime:</strong> Access (5 min), Refresh (24 hours)</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

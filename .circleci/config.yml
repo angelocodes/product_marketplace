@@ -1,0 +1,41 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@2.1.1
+
+jobs:
+  test:
+    docker:
+      - image: cimg/python:3.8
+
+    steps:
+      - checkout
+
+      - python/install-packages:
+          pkg-manager: pip
+          requirements: requirements.txt
+
+      - run:
+          name: Install test dependencies
+          command: |
+            pip install pytest pytest-django
+
+      - run:
+          name: Run database migrations
+          command: |
+            python manage.py migrate --settings=product_marketplace.settings
+
+      - run:
+          name: Run tests
+          command: |
+            python -m pytest --ds=product_marketplace.settings api/tests.py -v
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only: /.*/
+
