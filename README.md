@@ -31,7 +31,7 @@ A comprehensive Django REST API for managing products in a marketplace where bus
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/angelocodes/product_marketplace.git
 cd product_marketplace
 ```
 
