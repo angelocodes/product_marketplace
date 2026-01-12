@@ -110,3 +110,55 @@ def test_public_product_list(api_client, editor_user, business):
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data['results']) == 1
     assert response.data['results'][0]['name'] == "Approved Product"
+
+
+@pytest.mark.django_db
+def test_chatbot_functionality(api_client, editor_user, business):
+    from chatbot.models import ChatMessage
+
+    # Create approved product for context
+    Product.objects.create(
+        name="Test Product",
+        description="A great test product",
+        price=25.00,
+        status='approved',
+        created_by=editor_user,
+        business=business
+    )
+
+    # Authenticate user
+    api_client.force_authenticate(user=editor_user)
+
+    # Test chat endpoint
+    response = api_client.post('/api/chat/', {'message': 'What products are available?'})
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert 'user_message' in response.data
+    assert 'ai_response' in response.data
+    assert 'timestamp' in response.data
+    assert response.data['user_message'] == 'What products are available?'
+
+    # Check if message was saved
+    messages = ChatMessage.objects.filter(user=editor_user)
+    assert messages.count() == 1
+
+    message = messages.first()
+    assert message.user == editor_user
+    assert message.user_message == 'What products are available?'
+    assert len(message.ai_response) > 0
+
+    # Test chat history
+    history_response = api_client.get('/api/chat/history/')
+    assert history_response.status_code == status.HTTP_200_OK
+    assert len(history_response.data) == 1
+    assert history_response.data[0]['user_message'] == 'What products are available?'
+
+
+@pytest.mark.django_db
+def test_chatbot_unauthenticated(api_client):
+    # Test that unauthenticated users cannot access chat
+    response = api_client.post('/api/chat/', {'message': 'Hello'})
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    history_response = api_client.get('/api/chat/history/')
+    assert history_response.status_code == status.HTTP_403_FORBIDDEN

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-%gzu_xfv0_!@bo^s*&pxv0z0#u4da5h&0gp5feup&7_a(-$=12
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'api',
+    'chatbot',
 ]
 
 MIDDLEWARE = [

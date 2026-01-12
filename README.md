@@ -21,12 +21,19 @@ A comprehensive Django REST API for managing products in a marketplace where bus
 - Comprehensive testing with pytest
 - Pagination and filtering
 
+### AI Chatbot Features
+- **Intelligent Product Assistant**: AI-powered chatbot that answers questions about products
+- **Context-Aware Responses**: Uses approved products data to provide accurate information
+- **Chat History**: Stores conversation history for each user
+- **Natural Language Queries**: Supports questions like "What products are available?", "Which products are under $50?, and so on"
+- **Privacy-Focused**: Chat messages are protected and only visible to superusers in admin
+
 ---
 
 ## Quick Start
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.13
 - Git
 
 ### 1. Clone the Repository
@@ -147,6 +154,129 @@ curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/public/products/` | List approved products |
+
+### 🤖 AI Chatbot Endpoints
+
+| Method | Endpoint | Description | Permissions |
+|--------|----------|-------------|-------------|
+| `POST` | `/api/chat/` | Send message and get AI response | Authenticated users |
+| `GET` | `/api/chat/history/` | Get user's chat history | Authenticated users |
+
+---
+
+## 🤖 AI Chatbot Setup & Usage
+
+The AI chatbot provides intelligent answers about products using Google's Gemini AI. It can answer questions like "What products are available?", "Which products are under $50?", or "Tell me about product X".
+
+### Prerequisites
+- **Google Gemini API Key**: Get one from [Google AI Studio](https://aistudio.google.com/)
+- **Approved Products**: Chatbot only uses approved products for responses
+
+### Configuration
+
+1. **Set up API Key**:
+   ```bash
+   # Edit chatbot/.env file
+   GEMINI_API_KEY = your_api_key_here
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   pip install google-genai python-dotenv
+   ```
+
+### Using the Chatbot
+
+#### 1. Authentication Required
+All chatbot endpoints require JWT authentication:
+
+```bash
+# Get access token first
+curl -X POST http://127.0.0.1:8000/api/token/ \
+  -H "Content-Type: application/json" \
+  -d '{"username": "your_username", "password": "your_password"}'
+```
+
+#### 2. Send Chat Messages
+```bash
+# Ask about available products
+curl -X POST http://127.0.0.1:8000/api/chat/ \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What products are available?"}'
+
+# Response example:
+{
+    "id": 1,
+    "user_message": "What products are available?",
+    "ai_response": "Based on our approved products, we currently have: X Product - A great product ($25.00) by Test Business...",
+    "timestamp": "2026-01-12T10:45:00Z"
+}
+```
+
+#### 3. View Chat History
+```bash
+# Get your conversation history
+curl -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+     http://127.0.0.1:8000/api/chat/history/
+
+# Response example:
+[
+    {
+        "id": 1,
+        "user_message": "What products are available?",
+        "ai_response": "Based on our approved products...",
+        "timestamp": "2026-01-12T10:45:00Z"
+    }
+]
+```
+
+### Example Conversations
+
+```bash
+# Question 1: Available products
+curl -X POST http://127.0.0.1:8000/api/chat/ \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What products do you have?"}'
+
+# Question 2: Price filtering
+curl -X POST http://127.0.0.1:8000/api/chat/ \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Show me products under $50"}'
+
+# Question 3: Specific product info
+curl -X POST http://127.0.0.1:8000/api/chat/ \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Tell me about the Test Product"}'
+```
+
+### How It Works
+
+1. **Product Context**: The chatbot queries only approved products from your database
+2. **AI Processing**: Uses Google Gemini 2.5 Flash model for intelligent responses
+3. **Privacy**: Chat messages are stored securely and only accessible to the user who created them
+4. **Admin Access**: Superusers can view all chat messages in the Django admin for moderation
+
+### Production Scalability Considerations
+
+For production deployments with large product catalogs (millions to hundreds of millions of products), the current context-loading approach may become inefficient. **Recommended Production Enhancement: Semantic Search with Vector Embeddings**
+
+#### Implementation Strategy:
+- **Vector Database**: Use Qdrant, pgvector (PostgreSQL) or Pinecone for storing product embeddings
+- **Embedding Generation**: Generate embeddings for product descriptions using embedding models like text-embedding-3-small, or similar ones
+- **Query Processing**: For each user question, create embeddings and perform similarity search to find top 10-50 most relevant products
+- **Context Optimization**: Include only semantically relevant products in AI prompts instead of loading entire catalog
+- **Performance Benefits**: Sub-second query times even with billions of products, reduced memory usage, and more accurate AI responses
+
+#### Benefits:
+- Scales to massive product catalogs
+- Provides more relevant AI responses based on semantic similarity
+- Reduces computational overhead and API costs
+- Enables advanced features like product recommendations
+
 
 ---
 
