@@ -176,13 +176,8 @@ The AI chatbot provides intelligent answers about products using Google's Gemini
 
 1. **Set up API Key**:
    ```bash
-   # Edit chatbot/.env file
+   # Create a chatbot/.env file and add this
    GEMINI_API_KEY = your_api_key_here
-   ```
-
-2. **Install Dependencies**:
-   ```bash
-   pip install google-genai python-dotenv
    ```
 
 ### Using the Chatbot
